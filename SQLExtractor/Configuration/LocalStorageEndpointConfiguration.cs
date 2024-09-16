@@ -7,5 +7,8 @@ using System.Threading.Tasks;
 namespace Microsoft.Health.SQL.Extractor.Configuration;
 public class LocalStorageEndpointConfiguration
 {
+    /// <summary>
+    /// adding path to the local storage
+    /// </summary>
     public string? Path { get; set; }
 }
