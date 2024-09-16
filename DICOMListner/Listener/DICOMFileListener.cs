@@ -37,11 +37,16 @@ namespace Microsoft.Health.DICOM.Listener.Listener
             _dicomFileContextFactory = EnsureArg.IsNotNull(dicomFileContextFactory, nameof(dicomFileContextFactory));
         }
 
-        public event Func<TDICOMFIleContext, string, CancellationToken, Task<(string code, string error)?>> FileReceived;
+        public event Func<TDICOMFIleContext, byte[], CancellationToken, Task<(string code, string error)?>> FileReceived;
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            // throw new NotImplementedException();
+
+            //start the dicom implementation
+            return Task.CompletedTask;
+
+
         }
     }
 }
