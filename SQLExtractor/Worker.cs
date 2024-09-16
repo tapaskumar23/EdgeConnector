@@ -32,6 +32,7 @@ namespace Microsoft.Health.SQL.Extractor
 
         private Task OnDataExtracted(TSQLDataContext arg)
         {
+            //_sqlDataExtractor.ExtractData(default);
             throw new NotImplementedException();
         }
 
