@@ -1,4 +1,6 @@
 ﻿
+using EnsureThat;
+using FellowOakDicom;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -25,10 +27,13 @@ namespace Microsoft.Health.DICOM.Listener
                 .Validate(configuration => configuration.IsValid(), "Port must be between 1 and 65535")
                 .ValidateOnStart();
 
-            builder.Services.AddHttpClient();
+            // builder.Services.AddHttpClient();
             builder.Services.AddLogging();
             builder.Services.AddSingleton<ITcpListenerFactory, TcpListenerFactory>();
             builder.Services.AddSingleton(TimeProvider.System);
+
+            // Use DicomSetupBuilder to configure the internals of Fellow Oak DICOM
+            new DicomSetupBuilder().RegisterServices(s => s.AddFellowOakDicom()).Build();
 
             int endpointCount = 0;
             builder.Services.AddLocalStorageEndpoint(configuration, ref endpointCount);
