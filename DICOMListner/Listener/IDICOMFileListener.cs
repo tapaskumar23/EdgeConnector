@@ -4,16 +4,16 @@
 // </copyright>
 // --------------------------------------------------------------------------
 
-using Microsoft.Health.DICOM.Listener.Messages;
+using Microsoft.Health.DICOM.Listener.Files;
 
 namespace Microsoft.Health.DICOM.Listener.Listener
 {
     /// <summary>
     /// Interface for a server that listens for DICOM messages.
     /// </summary>
-    /// <typeparam name="TMessageContext">The concrete MessageContext type </typeparam>
-    public interface IMessageListener<TMessageContext>
-        where TMessageContext : MessageContext
+    /// <typeparam name="TDICOMFileContext">The concrete MessageContext type </typeparam>
+    public interface IDICOMFileListener<TDICOMFileContext>
+        where TDICOMFileContext : DICOMFileContext
     {
         /// <summary>
         /// Event that is triggered when a message is received.
@@ -22,7 +22,7 @@ namespace Microsoft.Health.DICOM.Listener.Listener
         /// <param name="message">The received message.</param>
         /// <param name="cancellationToken">A CancellationToken that can be used to cancel the operation.</param>
         /// <returns>A Task that represents the asynchronous operation. The task result contains an optional tuple with the response code and error message.</returns>
-        event Func<TMessageContext, string, CancellationToken, Task<(string code, string error)?>> MessageReceived;
+        event Func<TDICOMFileContext, string, CancellationToken, Task<(string code, string error)?>> FileReceived;
 
         /// <summary>
         /// Starts the server and begins listening for messages.

@@ -10,23 +10,23 @@ using EnsureThat;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.Health.DICOM.Listener.Configuration;
-using Microsoft.Health.DICOM.Listener.Messages;
+using Microsoft.Health.DICOM.Listener.Files;
 
 namespace Microsoft.Health.DICOM.Listener.Listener
 {
-    public class MessageListener<TMessageContext> : IMessageListener<TMessageContext>
-        where TMessageContext : MessageContext
+    public class DICOMFileListener<TDICOMFIleContext> : IDICOMFileListener<TDICOMFIleContext>
+        where TDICOMFIleContext : DICOMFileContext
     {
-        private readonly ILogger<MessageListener<TMessageContext>> _logger;
+        private readonly ILogger<DICOMFileListener<TDICOMFIleContext>> _logger;
         private readonly ITcpListenerFactory _tcpListenerFactory;
-        private readonly MessageListenerConfiguration _configuration;
-        private readonly IMessageContextFactory<TMessageContext> _messageContextFactory;
+        private readonly DICOMFileListenerConfiguration _configuration;
+        private readonly IDICOMFileContextFactory<TDICOMFIleContext> _dicomFileContextFactory;
 
-        public MessageListener(
-            IOptions<MessageListenerConfiguration> configuration,
+        public DICOMFileListener(
+            IOptions<DICOMFileListenerConfiguration> configuration,
             ITcpListenerFactory tcpListenerFactory,
-            IMessageContextFactory<TMessageContext> messageContextFactory,
-            ILogger<MessageListener<TMessageContext>> logger)
+            IDICOMFileContextFactory<TDICOMFIleContext> dicomFileContextFactory,
+            ILogger<DICOMFileListener<TDICOMFIleContext>> logger)
         {
             _configuration = EnsureArg.IsNotNull(configuration?.Value, nameof(configuration));
             EnsureArg.IsGt<int>(configuration.Value.Port, 0, nameof(configuration.Value.Port));
@@ -34,10 +34,10 @@ namespace Microsoft.Health.DICOM.Listener.Listener
 
             _logger = EnsureArg.IsNotNull(logger, nameof(logger));
             _tcpListenerFactory = EnsureArg.IsNotNull(tcpListenerFactory, nameof(tcpListenerFactory));
-            _messageContextFactory = EnsureArg.IsNotNull(messageContextFactory, nameof(messageContextFactory));
+            _dicomFileContextFactory = EnsureArg.IsNotNull(dicomFileContextFactory, nameof(dicomFileContextFactory));
         }
 
-        public event Func<TMessageContext, string, CancellationToken, Task<(string code, string error)?>> MessageReceived;
+        public event Func<TDICOMFIleContext, string, CancellationToken, Task<(string code, string error)?>> FileReceived;
 
         public Task StartAsync(CancellationToken cancellationToken)
         {

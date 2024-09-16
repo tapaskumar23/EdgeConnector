@@ -4,13 +4,13 @@
 // </copyright>
 // --------------------------------------------------------------------------
 
-using Microsoft.Health.DICOM.Listener.Messages;
+using Microsoft.Health.DICOM.Listener.Files;
 
 namespace Microsoft.Health.DICOM.Listener.Endpoints.LocalStorage
 {
-    public class LocalStorageMessageContext : MessageContext
+    public class LocalStorageDICOMFileContext : DICOMFileContext
     {
-        public LocalStorageMessageContext(DateTimeOffset enqueueDateTimeOffset)
+        public LocalStorageDICOMFileContext(DateTimeOffset enqueueDateTimeOffset)
             : base(enqueueDateTimeOffset)
         {
         }

@@ -4,11 +4,11 @@
 // </copyright>
 // --------------------------------------------------------------------------
 
-namespace Microsoft.Health.DICOM.Listener.Messages
+namespace Microsoft.Health.DICOM.Listener.Files
 {
-    public class MessageContext
+    public class DICOMFileContext
     {
-        public MessageContext(DateTimeOffset enqueueDateTimeOffset)
+        public DICOMFileContext(DateTimeOffset enqueueDateTimeOffset)
         {
             EnqueueDateTimeOffset = enqueueDateTimeOffset;
         }

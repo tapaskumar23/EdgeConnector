@@ -7,11 +7,11 @@
 using EnsureThat;
 using FellowOakDicom;
 using FellowOakDicom.Network;
-using Microsoft.Health.DICOM.Listener.Messages;
+using Microsoft.Health.DICOM.Listener.Files;
 
 namespace Microsoft.Health.DICOM.Listener.Endpoints.LocalStorage
 {
-    public class LocalStorageMessageContextFactory : IMessageContextFactory<LocalStorageMessageContext>
+    public class LocalStorageMessageContextFactory : IDICOMFileContextFactory<LocalStorageDICOMFileContext>
     {
         private readonly TimeProvider _timeProvider;
 
@@ -20,9 +20,9 @@ namespace Microsoft.Health.DICOM.Listener.Endpoints.LocalStorage
             _timeProvider = EnsureArg.IsNotNull(timeProvider, nameof(timeProvider));
         }
 
-        public LocalStorageMessageContext Create(DicomMessage message)
+        public LocalStorageDICOMFileContext Create(DicomMessage message)
         {
-            return new LocalStorageMessageContext(_timeProvider.GetUtcNow());
+            return new LocalStorageDICOMFileContext(_timeProvider.GetUtcNow());
         }
 
     }

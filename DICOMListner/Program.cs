@@ -2,8 +2,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Health.DICOM.Listener.Configuration;
 using Microsoft.Health.DICOM.Listener.Extensions;
 using Microsoft.Health.DICOM.Listener.Listener;
+
 
 namespace Microsoft.Health.DICOM.Listener
 {
@@ -18,8 +20,8 @@ namespace Microsoft.Health.DICOM.Listener
                 .AddEnvironmentVariables()
                 .Build();
 
-            builder.Services.AddOptions<MessageListenerConfiguration>()
-                .Bind(configuration.GetSection(nameof(MessageListenerConfiguration)))
+            builder.Services.AddOptions<DICOMFileListenerConfiguration>()
+                .Bind(configuration.GetSection(nameof(DICOMFileListenerConfiguration)))
                 .Validate(configuration => configuration.IsValid(), "Port must be between 1 and 65535")
                 .ValidateOnStart();
 

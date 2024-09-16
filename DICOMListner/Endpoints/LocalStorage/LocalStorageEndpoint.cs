@@ -25,7 +25,7 @@ namespace Microsoft.Health.DICOM.Listener.Endpoints.LocalStorage
             _logger = EnsureArg.IsNotNull(logger, nameof(logger));
         }
 
-        public Task<(string code, string error)?> Send(LocalStorageMessageContext context, string message, CancellationToken cancellationToken)
+        public Task<(string code, string error)?> Send(LocalStorageDICOMFileContext context, Byte[] file, CancellationToken cancellationToken)
         {
             try
             {
@@ -36,7 +36,7 @@ namespace Microsoft.Health.DICOM.Listener.Endpoints.LocalStorage
                 // Using FileMode.CreateNew will throw an excpetion if the file exists.
                 using var fileStream = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write);
                 using var streamWriter = new StreamWriter(fileStream);
-                streamWriter.Write(message);
+                streamWriter.Write(file);
 
                 _logger.LogInformation("Message written to local storage successfully.");
                 return Task.FromResult<(string, string)?>(null);

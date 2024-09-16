@@ -11,7 +11,7 @@ using Microsoft.Health.DICOM.Listener.Configuration;
 using Microsoft.Health.DICOM.Listener.Endpoints;
 using Microsoft.Health.DICOM.Listener.Endpoints.LocalStorage;
 using Microsoft.Health.DICOM.Listener.Listener;
-using Microsoft.Health.DICOM.Listener.Messages;
+using Microsoft.Health.DICOM.Listener.Files;
 
 namespace Microsoft.Health.DICOM.Listener.Extensions
 {
@@ -34,11 +34,11 @@ namespace Microsoft.Health.DICOM.Listener.Extensions
                 .Bind(configuration.GetSection(nameof(LocalStorageEndpointConfiguration)))
                 .Validate(configuration => configuration.IsValid())
                 .ValidateOnStart();
-
-                services.AddSingleton<IExternalEndpoint<LocalStorageMessageContext>, LocalStorageEndpoint>();
-                services.AddSingleton<IMessageContextFactory<LocalStorageMessageContext>, LocalStorageMessageContextFactory>();
-                services.AddHostedService<Worker<LocalStorageMessageContext>>();
-                services.AddSingleton<IMessageListener<LocalStorageMessageContext>, MessageListener<LocalStorageMessageContext>>();
+              
+                services.AddSingleton<IExternalEndpoint<LocalStorageDICOMFileContext>, LocalStorageEndpoint>();
+                services.AddSingleton<IDICOMFileContextFactory<LocalStorageDICOMFileContext>, LocalStorageMessageContextFactory>();
+                // services.AddHostedService<Worker<LocalStorageDICOMFileContext>>();
+                services.AddSingleton<IDICOMFileListener<LocalStorageDICOMFileContext>, DICOMFileListener<LocalStorageDICOMFileContext>>();
 
                 endpointCount++;
             }

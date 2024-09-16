@@ -7,11 +7,13 @@
 
 using FellowOakDicom.Network;
 
-namespace Microsoft.Health.DICOM.Listener.Messages
+namespace Microsoft.Health.DICOM.Listener.Files
+
 {
-    public interface IMessageContextFactory<TMessageContext>
-        where TMessageContext : MessageContext
+    public interface IDICOMFileContextFactory
+        <TDICOMFileContext>
+        where TDICOMFileContext : DICOMFileContext
     {
-        TMessageContext Create(DicomMessage message);
+        TDICOMFileContext Create(DicomMessage message);
     }
 }

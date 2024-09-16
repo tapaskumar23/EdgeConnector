@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Health.DICOM.Listener.Configuration
 {
-    public class MessageListenerConfiguration
+    public class DICOMFileListenerConfiguration
     {
         public int Port { get; set; }
     }

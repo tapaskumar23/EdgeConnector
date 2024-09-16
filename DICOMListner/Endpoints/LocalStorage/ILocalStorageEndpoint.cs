@@ -6,7 +6,7 @@
 
 namespace Microsoft.Health.DICOM.Listener.Endpoints.LocalStorage
 {
-    public interface ILocalStorageEndpoint : IExternalEndpoint<LocalStorageMessageContext>
+    public interface ILocalStorageEndpoint : IExternalEndpoint<LocalStorageDICOMFileContext>
     {
     }
 }
