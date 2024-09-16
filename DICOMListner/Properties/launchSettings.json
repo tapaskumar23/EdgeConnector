@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "DICOMListner": {
+      "commandName": "Project"
+    },
+    "Container (Dockerfile)": {
+      "commandName": "Docker"
+    }
+  }
+}
