@@ -37,7 +37,7 @@ namespace Microsoft.Health.DICOM.Listener.Extensions
               
                 services.AddSingleton<IExternalEndpoint<LocalStorageDICOMFileContext>, LocalStorageEndpoint>();
                 services.AddSingleton<IDICOMFileContextFactory<LocalStorageDICOMFileContext>, LocalStorageMessageContextFactory>();
-                // services.AddHostedService<Worker<LocalStorageDICOMFileContext>>();
+                services.AddHostedService<Worker<LocalStorageDICOMFileContext>>();
                 services.AddSingleton<IDICOMFileListener<LocalStorageDICOMFileContext>, DICOMFileListener<LocalStorageDICOMFileContext>>();
 
                 endpointCount++;

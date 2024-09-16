@@ -12,13 +12,13 @@ namespace DicomSender
 
         static void Main(string[] args)
         {
-            if (args.Length == 0)
-            {
-                Console.WriteLine("Usage: DicomSender <dicom-file-path>");
-                return;
-            }
+            //if (args.Length == 0)
+            //{
+            //    Console.WriteLine("Usage: DicomSender <dicom-file-path>");
+            //    return;
+            //}
 
-            string dicomFilePath = args[0];
+            string dicomFilePath = "C:/Users/asomwanshi/OneDrive - Microsoft/Hack2024/SecureHealthBridge/DICOM_Data/sampleData.dcm";
 
             if (!File.Exists(dicomFilePath))
             {
