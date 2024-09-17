@@ -1,6 +1,8 @@
-﻿using Microsoft.Health.SQL.Extractor.SQLData;
+﻿using EnsureThat;
+using Microsoft.Health.SQL.Extractor.SQLData;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,7 +13,7 @@ namespace Microsoft.Health.SQL.Extractor.Endpoints.LocalStorage
     {
         public LocalStorageSQLDataContext Create(DateTimeOffset enqueueDateTimeOffset)
         {
-            throw new NotImplementedException();
+            return new LocalStorageSQLDataContext(enqueueDateTimeOffset);
         }
     }
 }

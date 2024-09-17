@@ -24,7 +24,10 @@ public class Program
             .ValidateOnStart();
 
         builder.Services.AddLogging();
-        builder.Services.AddSingleton<ISqlConnectorFactory<SQLDataContext>, SqlConnectorFactory>();
+        builder.Services.AddSingleton<ISqlConnectorFactory<SQLDataContext>, SqlConnectorFactory>();        
+        builder.Services.AddSingleton<ISQLDataExtractor<SQLDataContext>,SQLDataExtractor> ();
+
+
         builder.Services.AddSingleton(TimeProvider.System);
 
         int endpointCount = 0;
