@@ -10,5 +10,10 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
     {
         event Func<TSQLDataContext, Task> OnDataExtracted;
         Task ExtractData(CancellationToken cancellationToken);
+
+        Task VerifySQLConnection(CancellationToken cancellationToken);
+
+        Task PerformInitalSetup(CancellationToken cancellationToken);
+
     }
 }

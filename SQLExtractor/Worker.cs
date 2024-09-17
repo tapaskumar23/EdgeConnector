@@ -33,9 +33,11 @@ namespace Microsoft.Health.SQL.Extractor
             throw new NotImplementedException();
         }
 
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            throw new NotImplementedException();
+            //Verify the Connection
+            //Perform the initial Setup
+            await _sqlDataExtractor.ExtractData(stoppingToken).ConfigureAwait(false);
         }
 
         public override void Dispose()

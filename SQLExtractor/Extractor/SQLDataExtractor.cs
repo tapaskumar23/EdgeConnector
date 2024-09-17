@@ -13,6 +13,21 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
 
         public Task ExtractData(CancellationToken cancellationToken)
         {
+
+
+
+            throw new NotImplementedException();
+        }
+
+        public Task PerformInitalSetup(CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task VerifySQLConnection(CancellationToken cancellationToken)
+        {
+            //Create a connection and test the connetion 
+
             throw new NotImplementedException();
         }
     }
