@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Health.SQL.Extractor.Configuration
 {
-    public class SQLExtractorConfiguration
+    public class SQLConnectorConfiguration
     {
         public string Server { get; set; }
         public string Database { get; set; }

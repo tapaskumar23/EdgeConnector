@@ -9,7 +9,7 @@ namespace Microsoft.Health.SQL.Extractor.Extensions
 {
     public static class ConfigurationExtensions
     {
-        public static bool IsValid(this SQLExtractorConfiguration? configuration)
+        public static bool IsValid(this SQLConnectorConfiguration? configuration)
         {
             if (configuration == null)
             {
