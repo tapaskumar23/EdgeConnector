@@ -41,10 +41,10 @@ namespace Microsoft.Health.DICOM.Listener.Listener
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
-            // throw new NotImplementedException();
+             throw new NotImplementedException();
 
             //start the dicom implementation
-            return Task.CompletedTask;
+            
 
 
         }

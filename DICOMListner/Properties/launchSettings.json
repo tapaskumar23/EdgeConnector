@@ -4,7 +4,8 @@
       "commandName": "Project"
     },
     "Container (Dockerfile)": {
-      "commandName": "Docker"
+      "commandName": "Docker",
+      "DockerfileRunArguments": "-p 32000:32000 -v data:/Files/DICOM --user=root"
     }
   }
 }
