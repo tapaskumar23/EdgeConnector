@@ -1,6 +1,7 @@
 ﻿using Microsoft.Health.SQL.Extractor.SQLData;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
@@ -13,6 +14,11 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
         public SqlConnection Create(string server, string database, string username, string password)
         {
             return new SqlConnection($"Server={server};Database={database};User Id={username};Password={password};");
+        }
+
+        public DataTable Execute(SqlConnection connection, string query)
+        {
+            throw new NotImplementedException();
         }
     }
 }
