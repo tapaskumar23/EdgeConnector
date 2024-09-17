@@ -9,16 +9,6 @@ namespace Microsoft.Health.SQL.Extractor.Extensions
 {
     public static class ConfigurationExtensions
     {
-        public static bool IsValid(this LocalStorageEndpointConfiguration? configuration)
-        {
-            if (configuration == null)
-            {
-                return false;
-            }
-
-            return !string.IsNullOrEmpty(configuration.Path) ;
-        }
-
         public static bool IsValid(this SQLExtractorConfiguration? configuration)
         {
             if (configuration == null)
@@ -30,6 +20,16 @@ namespace Microsoft.Health.SQL.Extractor.Extensions
                 !string.IsNullOrEmpty(configuration.Server) &&
                 !string.IsNullOrEmpty(configuration.Database) &&
                 !string.IsNullOrEmpty(configuration.Password);
+        }
+
+        public static bool IsValid(this LocalStorageEndpointConfiguration? configuration)
+        {
+            if (configuration == null)
+            {
+                return false;
+            }
+
+            return !string.IsNullOrEmpty(configuration.Path) ;
         }
     }
 }

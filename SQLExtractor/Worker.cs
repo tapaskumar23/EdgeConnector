@@ -15,16 +15,13 @@ namespace Microsoft.Health.SQL.Extractor
     public sealed class Worker<TSQLDataContext> : BackgroundService
         where TSQLDataContext : SQLDataContext
     {
-
-        private readonly ISQLDataContextFactory<TSQLDataContext> _sqlDataContextFactory;
         private readonly ISQLDataExtractor<TSQLDataContext> _sqlDataExtractor;
         private readonly ILogger<Worker<TSQLDataContext>> _logger;
         public Worker(
-            ISQLDataContextFactory<TSQLDataContext> sqlDataContextFactory,
+            
             ISQLDataExtractor<TSQLDataContext> sqlDataExtractor,
             ILogger<Worker<TSQLDataContext>> logger)
         {
-            _sqlDataContextFactory = EnsureArg.IsNotNull(sqlDataContextFactory, nameof(sqlDataContextFactory));
             _sqlDataExtractor = EnsureArg.IsNotNull(sqlDataExtractor, nameof(sqlDataExtractor));
             _logger = EnsureArg.IsNotNull(logger, nameof(logger));
             _sqlDataExtractor.OnDataExtracted += OnDataExtracted;
@@ -32,12 +29,15 @@ namespace Microsoft.Health.SQL.Extractor
 
         private Task OnDataExtracted(TSQLDataContext arg)
         {
+            //_sqlDataExtractor.ExtractData(default);
             throw new NotImplementedException();
         }
 
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            throw new NotImplementedException();
+            //Verify the Connection
+            //Perform the initial Setup
+            await _sqlDataExtractor.ExtractData(stoppingToken).ConfigureAwait(false);
         }
 
         public override void Dispose()

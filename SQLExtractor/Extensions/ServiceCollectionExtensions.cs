@@ -14,7 +14,7 @@ namespace Microsoft.Health.SQL.Extractor.Extensions
     internal static class ServiceCollectionExtensions
     {
         internal static IServiceCollection AddLocalStorageEndpoint(this IServiceCollection services, 
-            Microsoft.Extensions.Configuration.IConfiguration configuration, ref int endpointCount)
+            IConfiguration configuration, ref int endpointCount)
         {
             var localStorageEndpointConfiguration = new LocalStorageEndpointConfiguration();
             configuration.Bind(nameof(LocalStorageEndpointConfiguration), localStorageEndpointConfiguration);
@@ -55,12 +55,11 @@ namespace Microsoft.Health.SQL.Extractor.Extensions
 
             if(isConfigurationValid)
             {
+                services.AddSingleton<ISQLDataExtractor<SQLDataContext>, SQLDataExtractor>();
                 services.AddSingleton<IExternalEndpoint<LocalStorageSQLDataContext>, LocalStorageEndpoint>();
                 services.AddSingleton<ISQLDataContextFactory<LocalStorageSQLDataContext>, LocalStorageSQLDataContextFactory>();
-                services.AddSingleton<ISQLDataExtractor<SQLDataContext>, SQLDataExtractor>();
-                services.AddSingleton<ISqlConnectorFactory<SQLDataContext>, SqlConnectorFactory>();
                 services.AddHostedService<Worker<SQLDataContext>>();
-
+                                           
                 endpointCount++;
 
             }

@@ -1,0 +1,17 @@
+﻿;With columnList AS 
+(
+SELECT 
+    t.TABLE_SCHEMA AS SchemaName, 
+    t.TABLE_NAME AS TableName, 
+    STUFF((SELECT ', [' + c.COLUMN_NAME + ']'
+           FROM INFORMATION_SCHEMA.COLUMNS c
+           WHERE c.TABLE_NAME = t.TABLE_NAME 
+           AND c.TABLE_SCHEMA = t.TABLE_SCHEMA
+           FOR XML PATH('')), 1, 2, '') AS ColumnNames
+FROM 
+    INFORMATION_SCHEMA.TABLES t
+WHERE 
+    t.TABLE_TYPE = 'BASE TABLE'
+)
+SELECT 'SELECT ' + ColumnNames + ' FROM [' + SchemaName + '].[' + tableName + ']' AS SelectStmt,
+schemaName, tableName FROM columnList
