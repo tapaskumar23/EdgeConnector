@@ -1,6 +1,7 @@
 ﻿using EnsureThat;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Health.SQL.Extractor.Endpoints;
 using Microsoft.Health.SQL.Extractor.Extractor;
 using Microsoft.Health.SQL.Extractor.SQLData;
 using System;
@@ -16,12 +17,14 @@ namespace Microsoft.Health.SQL.Extractor
         where TSQLDataContext : SQLDataContext
     {
         private readonly ISQLDataExtractor<TSQLDataContext> _sqlDataExtractor;
+        private readonly IExternalEndpoint<TSQLDataContext> _externalEndpoint;
         private readonly ILogger<Worker<TSQLDataContext>> _logger;
         public Worker(
             
-            ISQLDataExtractor<TSQLDataContext> sqlDataExtractor,
+            ISQLDataExtractor<TSQLDataContext> sqlDataExtractor, IExternalEndpoint<TSQLDataContext> externalEndpoint,
             ILogger<Worker<TSQLDataContext>> logger)
         {
+            _externalEndpoint = EnsureArg.IsNotNull(externalEndpoint, nameof(externalEndpoint));
             _sqlDataExtractor = EnsureArg.IsNotNull(sqlDataExtractor, nameof(sqlDataExtractor));
             _logger = EnsureArg.IsNotNull(logger, nameof(logger));
             _sqlDataExtractor.OnDataExtracted += OnDataExtracted;
@@ -36,6 +39,7 @@ namespace Microsoft.Health.SQL.Extractor
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             //Verify the Connection
+
             //Perform the initial Setup
             await _sqlDataExtractor.ExtractData(stoppingToken).ConfigureAwait(false);
         }
