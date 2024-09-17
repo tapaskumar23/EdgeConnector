@@ -8,7 +8,7 @@ namespace DicomSender
     class Program
     {
         private const string ServerIp = "127.0.0.1"; // Replace with the server IP address
-        private const int Port = 20032; // The port to connect to
+        private const int Port = 32000; // The port to connect to
 
         static void Main(string[] args)
         {

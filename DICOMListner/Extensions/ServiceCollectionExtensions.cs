@@ -27,7 +27,8 @@ namespace Microsoft.Health.DICOM.Listener.Extensions
             {
                 if (!Directory.Exists(localStorageEndpointConfiguration.Path))
                 {
-                    throw new InvalidConfigurationException("The path provided for the local storage endpoint does not exist.");
+                   throw new InvalidConfigurationException("The path provided in the LocalStorageEndpointConfiguration does not exist.");
+
                 }
 
                 services.AddOptions<LocalStorageEndpointConfiguration>()
