@@ -15,16 +15,13 @@ namespace Microsoft.Health.SQL.Extractor
     public sealed class Worker<TSQLDataContext> : BackgroundService
         where TSQLDataContext : SQLDataContext
     {
-
-        private readonly ISQLDataContextFactory<TSQLDataContext> _sqlDataContextFactory;
         private readonly ISQLDataExtractor<TSQLDataContext> _sqlDataExtractor;
         private readonly ILogger<Worker<TSQLDataContext>> _logger;
         public Worker(
-            ISQLDataContextFactory<TSQLDataContext> sqlDataContextFactory,
+            
             ISQLDataExtractor<TSQLDataContext> sqlDataExtractor,
             ILogger<Worker<TSQLDataContext>> logger)
         {
-            _sqlDataContextFactory = EnsureArg.IsNotNull(sqlDataContextFactory, nameof(sqlDataContextFactory));
             _sqlDataExtractor = EnsureArg.IsNotNull(sqlDataExtractor, nameof(sqlDataExtractor));
             _logger = EnsureArg.IsNotNull(logger, nameof(logger));
             _sqlDataExtractor.OnDataExtracted += OnDataExtracted;

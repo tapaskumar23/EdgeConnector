@@ -55,9 +55,10 @@ namespace Microsoft.Health.SQL.Extractor.Extensions
 
             if(isConfigurationValid)
             {
+                services.AddSingleton<ISQLDataExtractor<SQLDataContext>, SQLDataExtractor>();
                 services.AddSingleton<IExternalEndpoint<LocalStorageSQLDataContext>, LocalStorageEndpoint>();
                 services.AddSingleton<ISQLDataContextFactory<LocalStorageSQLDataContext>, LocalStorageSQLDataContextFactory>();
-                services.AddHostedService<Worker<LocalStorageSQLDataContext>>();
+                services.AddHostedService<Worker<SQLDataContext>>();
                                            
                 endpointCount++;
 
