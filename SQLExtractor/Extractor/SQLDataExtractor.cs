@@ -1,5 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.Health.SQL.Extractor.Configuration;
+using Microsoft.Health.SQL.Extractor.Endpoints.LocalStorage;
 using Microsoft.Health.SQL.Extractor.SQLData;
 using System;
 using System.Collections.Generic;
@@ -9,13 +12,13 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Health.SQL.Extractor.Extractor
 {
-    public class SQLDataExtractor<TSQLDataContext> : ISQLDataExtractor<TSQLDataContext> where TSQLDataContext: SQLDataContext
+    public class SQLDataExtractor<TSQLDataContext> : ISQLDataExtractor<TSQLDataContext>
+            where TSQLDataContext : SQLDataContext
     {
         private readonly ILogger<SQLDataExtractor<TSQLDataContext>> _logger;
-        private readonly ISqlConnectorFactory<TSQLDataContext> _sqlConnectorFactory;
-        private readonly SQLExtractorConfiguration _configuration;
+        private readonly ISqlConnectorFactory _sqlConnectorFactory;
         private readonly ISQLDataContextFactory<TSQLDataContext> _sqlDataContextFactory;
-
+        private readonly IOptions<SQLConnectorConfiguration> _sQLConnectorConfiguration;
 
         public event Func<SQLDataContext, Task> OnDataExtracted;
 
@@ -23,20 +26,29 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
         {
             add
             {
-                throw new NotImplementedException();
+               
             }
 
             remove
             {
-                throw new NotImplementedException();
+               
             }
+        }
+
+        public SQLDataExtractor(
+            ILogger<SQLDataExtractor<TSQLDataContext>> logger,
+            ISqlConnectorFactory sqlConnectorFactory,
+            IOptions<SQLConnectorConfiguration> configuration,
+            ISQLDataContextFactory<TSQLDataContext> sqlDataContextFactory)
+        {
+            _logger = logger;
+            _sqlConnectorFactory = sqlConnectorFactory;
+            _sqlDataContextFactory = sqlDataContextFactory;
+            _sQLConnectorConfiguration = configuration;
         }
 
         public Task ExtractData(CancellationToken cancellationToken)
         {
-
-
-
             throw new NotImplementedException();
         }
 
@@ -45,11 +57,12 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
             throw new NotImplementedException();
         }
 
-        public Task VerifySQLConnection(CancellationToken cancellationToken)
+        public async Task<bool> VerifySQLConnection(CancellationToken cancellationToken)
         {
-            //Create a connection and test the connetion 
-
-            throw new NotImplementedException();
+            return await Task.FromResult(_sqlConnectorFactory.TestConnection(_sQLConnectorConfiguration.Value.Server,
+                _sQLConnectorConfiguration.Value.Database,
+                _sQLConnectorConfiguration.Value.Username,
+                _sQLConnectorConfiguration.Value.Password));
         }
     }
 }

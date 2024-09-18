@@ -35,8 +35,8 @@ namespace Microsoft.Health.SQL.Extractor.Extensions
                 .ValidateOnStart();
             }
 
-            var sqlExtractorConfiguration = new SQLExtractorConfiguration();
-            configuration.Bind(nameof(SQLExtractorConfiguration), localStorageEndpointConfiguration);
+            var sqlExtractorConfiguration = new SQLConnectorConfiguration();
+            configuration.Bind(nameof(SQLConnectorConfiguration), sqlExtractorConfiguration);
 
             if (sqlExtractorConfiguration.IsValid())
             {
@@ -47,19 +47,21 @@ namespace Microsoft.Health.SQL.Extractor.Extensions
                     throw new InvalidConfigurationException("The connection string to on-prem database for the local storage endpoint is not correct.");
                 }
 
-                services.AddOptions<SQLExtractorConfiguration>()
-                .Bind(configuration.GetSection(nameof(SQLExtractorConfiguration)))
+                services.AddOptions<SQLConnectorConfiguration>()
+                .Bind(configuration.GetSection(nameof(SQLConnectorConfiguration)))
                 .Validate(configuration => configuration.IsValid())
                 .ValidateOnStart();
             }
 
             if(isConfigurationValid)
             {
-                services.AddSingleton<ISQLDataExtractor<SQLDataContext>, ISQLDataExtractor<SQLDataContext>>();
+              
+
                 services.AddSingleton<IExternalEndpoint<LocalStorageSQLDataContext>, LocalStorageEndpoint>();
                 services.AddSingleton<ISQLDataContextFactory<LocalStorageSQLDataContext>, LocalStorageSQLDataContextFactory>();
-                services.AddHostedService<Worker<SQLDataContext>>();
-                                           
+                services.AddHostedService<Worker<LocalStorageSQLDataContext>>();
+                services.AddSingleton<ISQLDataExtractor<LocalStorageSQLDataContext>, SQLDataExtractor<LocalStorageSQLDataContext>>();
+
                 endpointCount++;
 
             }

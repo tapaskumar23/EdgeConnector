@@ -20,8 +20,8 @@ namespace Microsoft.Health.SQL.Extractor
         private readonly IExternalEndpoint<TSQLDataContext> _externalEndpoint;
         private readonly ILogger<Worker<TSQLDataContext>> _logger;
         public Worker(
-            
-            ISQLDataExtractor<TSQLDataContext> sqlDataExtractor, IExternalEndpoint<TSQLDataContext> externalEndpoint,
+                        ISQLDataExtractor<TSQLDataContext> sqlDataExtractor,
+                        IExternalEndpoint<TSQLDataContext> externalEndpoint,
             ILogger<Worker<TSQLDataContext>> logger)
         {
             _externalEndpoint = EnsureArg.IsNotNull(externalEndpoint, nameof(externalEndpoint));
@@ -32,13 +32,15 @@ namespace Microsoft.Health.SQL.Extractor
 
         private Task OnDataExtracted(TSQLDataContext arg)
         {
-            //_sqlDataExtractor.ExtractData(default);
+            _sqlDataExtractor.ExtractData(default);
             throw new NotImplementedException();
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
             //Verify the Connection
+
+            await _sqlDataExtractor.VerifySQLConnection(stoppingToken).ConfigureAwait(false);
 
             //Perform the initial Setup
             await _sqlDataExtractor.ExtractData(stoppingToken).ConfigureAwait(false);

@@ -9,9 +9,11 @@ using System.Threading.Tasks;
 
 namespace Microsoft.Health.SQL.Extractor.Extractor
 {
-    public interface ISqlConnectorFactory<TSQLDataContext> where TSQLDataContext : SQLDataContext
+    public interface ISqlConnectorFactory
     {
         SqlConnection Create(string server, string database, string username, string password);
+
+        bool TestConnection(string server, string database, string username, string password);
 
         DataTable Execute(SqlConnection connection, string query);
     }

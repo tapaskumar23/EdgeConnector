@@ -17,15 +17,10 @@ public class Program
             .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
             .AddEnvironmentVariables()
             .Build();
+            
 
-        builder.Services.AddOptions<SQLExtractorConfiguration>()
-            .Bind(configuration.GetSection(nameof(SQLExtractorConfiguration)))
-            .Validate(configuration => configuration.IsValid(), "Sql connection string is not proper")
-            .ValidateOnStart();
-
-        builder.Services.AddLogging();
-        builder.Services.AddSingleton<ISqlConnectorFactory<SQLDataContext>, SqlConnectorFactory>();        
-
+        builder.Services.AddLogging();            
+        builder.Services.AddSingleton<ISqlConnectorFactory, SqlConnectorFactory>();
         builder.Services.AddSingleton(TimeProvider.System);
 
         int endpointCount = 0;
