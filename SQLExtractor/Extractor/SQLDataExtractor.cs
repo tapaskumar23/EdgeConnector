@@ -50,23 +50,26 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
 
         public async Task<DataTable> ExtractData(CancellationToken cancellationToken)
         {
-            if(VerifySQLConnection(cancellationToken).Result)
+            throw new NotImplementedException();
+        }
+
+        public Task PerformInitalSetup(CancellationToken cancellationToken)
+        {
+            if (VerifySQLConnection(cancellationToken).Result)
             {
                 var connectionObj = _sqlConnectorFactory.Create(_sQLConnectorConfiguration.Value.Server,
                 _sQLConnectorConfiguration.Value.Database,
                 _sQLConnectorConfiguration.Value.Username,
                 _sQLConnectorConfiguration.Value.Password);
 
-                string sqlQuery = File.ReadAllText("initaltablelist.txt");
+                string path = Directory.GetCurrentDirectory() + @"SQLScripts/initaltablelist.txt";
 
-                return await Task.FromResult(_sqlConnectorFactory.Execute(connectionObj, sqlQuery));
+                string sqlQuery = File.ReadAllText(path);
+
+                var dataTable = _sqlConnectorFactory.Execute(connectionObj, sqlQuery);
+                
             }
-            return await Task.FromResult<DataTable>(null);
-        }
-
-        public Task PerformInitalSetup(CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
+            return Task.CompletedTask;
         }
 
         public async Task<bool> VerifySQLConnection(CancellationToken cancellationToken)
@@ -75,6 +78,49 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
                 _sQLConnectorConfiguration.Value.Database,
                 _sQLConnectorConfiguration.Value.Username,
                 _sQLConnectorConfiguration.Value.Password));
+        }
+
+        public void DataTableToCSV(DataTable dataTable, string filePath)
+        {
+            StringBuilder csvContent = new StringBuilder();
+
+            // Add column names
+            for (int i = 0; i < dataTable.Columns.Count; i++)
+            {
+                if (i > 0)
+                    csvContent.Append(",");
+                csvContent.Append(EscapeCSV(dataTable.Columns[i].ColumnName));
+            }
+            csvContent.AppendLine();
+
+            // Add rows
+            foreach (DataRow row in dataTable.Rows)
+            {
+                for (int i = 0; i < dataTable.Columns.Count; i++)
+                {
+                    if (i > 0)
+                        csvContent.Append(",");
+                    csvContent.Append(EscapeCSV(row[i].ToString()));
+                }
+                csvContent.AppendLine();
+            }
+
+            // Write to file
+            File.WriteAllText(filePath, csvContent.ToString());
+        }
+
+        public string EscapeCSV(string value)
+        {
+            // Escape quotes and wrap with double quotes if needed
+            if (value.Contains("\""))
+            {
+                value = value.Replace("\"", "\"\"");
+            }
+            if (value.Contains(",") || value.Contains("\"") || value.Contains("\n"))
+            {
+                value = "\"" + value + "\"";
+            }
+            return value;
         }
     }
 }

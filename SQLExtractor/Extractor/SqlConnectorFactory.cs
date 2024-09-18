@@ -19,19 +19,35 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
 
         public DataTable Execute(SqlConnection connection, string query)
         {
-            return new DataTable();
+            DataTable dataTable = new DataTable();
+            try
+            {
+                connection.Open();
+                Console.WriteLine("Connection Opened Successfully");
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(command))
+                    {
+                        adapter.Fill(dataTable);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return dataTable;
         }
 
-        public bool TestConnection(string server, string database, string username, string password)
-        {
-            ArgumentNullException.ThrowIfNullOrEmpty(server);
-            ArgumentNullException.ThrowIfNullOrEmpty(database);
-            ArgumentNullException.ThrowIfNullOrEmpty(username);
-            ArgumentNullException.ThrowIfNullOrEmpty(password);
-
-            //string conn = $"Server={server};Database={database};User Id={username};Password={password};";
-            //172.24.192.1
-            string conn = @"Server=192.168.1.3,1433;Database=AdventureWorksDW2019;User Id=testUser;Password=Vinod!YTAasK61#44;";
+        public bool TestConnection(string serverIP, string database, string username, string password)
+        {          
+            string conn = $"Server={serverIP},1433;Database={database};User Id={username};Password={password};";
             using (SqlConnection sqlConnection = new SqlConnection(conn))
             {
                 try

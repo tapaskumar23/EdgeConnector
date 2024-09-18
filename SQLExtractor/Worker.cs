@@ -41,6 +41,7 @@ namespace Microsoft.Health.SQL.Extractor
             //Verify the Connection
 
             await _sqlDataExtractor.VerifySQLConnection(stoppingToken).ConfigureAwait(false);
+            await _sqlDataExtractor.PerformInitalSetup(stoppingToken).ConfigureAwait(false);
 
             //Perform the initial Setup
             await _sqlDataExtractor.ExtractData(stoppingToken).ConfigureAwait(false);
