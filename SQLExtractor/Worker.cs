@@ -1,6 +1,8 @@
 ﻿using EnsureThat;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using Microsoft.Health.SQL.Extractor.Configuration;
 using Microsoft.Health.SQL.Extractor.Endpoints;
 using Microsoft.Health.SQL.Extractor.Extractor;
 using Microsoft.Health.SQL.Extractor.SQLData;
@@ -19,14 +21,18 @@ namespace Microsoft.Health.SQL.Extractor
         private readonly ISQLDataExtractor<TSQLDataContext> _sqlDataExtractor;
         private readonly IExternalEndpoint<TSQLDataContext> _externalEndpoint;
         private readonly ILogger<Worker<TSQLDataContext>> _logger;
+        private readonly IOptions<SQLConnectorConfiguration> _sQLConnectorConfiguration;
+
         public Worker(
                         ISQLDataExtractor<TSQLDataContext> sqlDataExtractor,
                         IExternalEndpoint<TSQLDataContext> externalEndpoint,
+                        IOptions<SQLConnectorConfiguration> sQLConnectorConfiguration,
             ILogger<Worker<TSQLDataContext>> logger)
         {
             _externalEndpoint = EnsureArg.IsNotNull(externalEndpoint, nameof(externalEndpoint));
             _sqlDataExtractor = EnsureArg.IsNotNull(sqlDataExtractor, nameof(sqlDataExtractor));
             _logger = EnsureArg.IsNotNull(logger, nameof(logger));
+            _sQLConnectorConfiguration = EnsureArg.IsNotNull(sQLConnectorConfiguration, nameof(sQLConnectorConfiguration));
             _sqlDataExtractor.OnDataExtracted += OnDataExtracted;
         }
 
@@ -38,6 +44,7 @@ namespace Microsoft.Health.SQL.Extractor
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await _externalEndpoint.PerformInitialSetupAsync(_sQLConnectorConfiguration.Value.ServerName, _sQLConnectorConfiguration.Value.Database);
             //Verify the Connection
 
             await _sqlDataExtractor.VerifySQLConnection(stoppingToken).ConfigureAwait(false);

@@ -5,6 +5,7 @@
 // --------------------------------------------------------------------------
 
 
+using Microsoft.Health.SQL.Extractor.Endpoints.LocalStorage;
 using Microsoft.Health.SQL.Extractor.SQLData;
 using System.Data;
 
@@ -18,7 +19,8 @@ namespace Microsoft.Health.SQL.Extractor.Endpoints
      /// <param name="context"></param>
      /// <param name="sqlData"></param>
      /// <param name="cancellationToken"></param>
-     /// <returns></returns>
-        Task<(string code, string error)?> Send(TSQLDataContext context, DataTable sqlData, CancellationToken cancellationToken);
+     /// <returns></returns>        
+        Task<(string code, string error)?> SendAsync(TSQLDataContext context, DataTable sqlData, CancellationToken cancellationToken);
+        Task PerformInitialSetupAsync(string servername, string databaseName);
     }
 }

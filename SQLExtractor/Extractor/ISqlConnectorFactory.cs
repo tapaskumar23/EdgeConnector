@@ -15,6 +15,6 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
 
         bool TestConnection(string server, string database, string username, string password);
 
-        DataTable Execute(SqlConnection connection, string query);
+        Task<DataTable> ExecuteAsync(SqlConnection connection, string query);
     }
 }
