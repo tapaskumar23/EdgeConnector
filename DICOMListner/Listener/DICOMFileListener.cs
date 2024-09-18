@@ -39,14 +39,96 @@ namespace Microsoft.Health.DICOM.Listener.Listener
 
         public event Func<TDICOMFIleContext, byte[], CancellationToken, Task<(string code, string error)?>> FileReceived;
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
-             throw new NotImplementedException();
+            // throw new NotImplementedException();
 
-            //start the dicom implementation
-            
+            TcpListener server = _tcpListenerFactory.Create(_configuration.Port);
+            server.Start();
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                _logger.LogInformation("Waiting for a connection...");
+                TcpClient client = await server.AcceptTcpClientAsync(cancellationToken);
+                _logger.LogInformation("Connected!");
+
+                _ = Task.Run(
+                    async () =>
+                    {
+                        try
+                        {
+                            (List<byte[]> files, NetworkStream stream) = await ReceiveFrame(client, cancellationToken);
+
+                            if (FileReceived == null && files.Count > 0)
+                            {
+                                foreach (var file in files)
+                                {
+                                    (string code, string error)? response = await FileReceived(_dicomFileContextFactory.Create(file),file, cancellationToken);
+                                    // await SendAckMessage(stream, message, "response?.code", "response?.error", cancellationToken);
+                                }
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            _logger.LogError(ex, "Error processing message");
+                        }
+                        finally
+                        {
+                            client?.Close();
+                        }
+                    }, cancellationToken);
+            }
+        }
+
+        private async Task<(List<byte[]> files, NetworkStream stream)> ReceiveFrame(TcpClient client, CancellationToken cancellationToken)
+        {
+            _logger.LogInformation("Receiving file frame...");
+
+            NetworkStream stream = client.GetStream();
+            var frame = new StringBuilder();
+            byte[] buffer = new byte[256];
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                if (stream.DataAvailable)
+                {
+                    int bytesRead;
+                    do
+                    {
+                        bytesRead = await stream.ReadAsync(buffer, cancellationToken);
+
+                        if (bytesRead > 0)
+                        {
+                            _logger.LogInformation("Received {BytesRead} bytes", bytesRead);
+
+                            for (int i = 0; i < bytesRead; i++)
+                            {
+                                frame.Append((char)buffer[i]);
+                            }
+                        }
+                    }
+                    while (stream.DataAvailable);
+
+                    return (ProcessFrame(frame.ToString()), stream);
+                }
+                else
+                {
+                    await Task.Delay(100, cancellationToken); // Avoid busy waiting
+                }
+            }
+
+            throw new OperationCanceledException();
+        }
+
+        private List<byte[]> ProcessFrame(string frame)
+        {
+            _logger.LogInformation("Processing frame: {Frame}", frame);
+            // process message if needed
+
+            // convert frame to byte array
+            return new List<byte[]> { Encoding.UTF8.GetBytes(frame) };
 
 
         }
+
     }
 }

@@ -4,7 +4,6 @@
 // </copyright>
 // --------------------------------------------------------------------------
 
-
 using FellowOakDicom.Network;
 
 namespace Microsoft.Health.DICOM.Listener.Files
