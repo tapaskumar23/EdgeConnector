@@ -24,15 +24,23 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
 
         public bool TestConnection(string server, string database, string username, string password)
         {
-            using (SqlConnection sqlConnection = new SqlConnection($"Server={server};Database={database};User Id={username};Password={password};"))
+            ArgumentNullException.ThrowIfNullOrEmpty(server);
+            ArgumentNullException.ThrowIfNullOrEmpty(database);
+            ArgumentNullException.ThrowIfNullOrEmpty(username);
+            ArgumentNullException.ThrowIfNullOrEmpty(password);
+
+            string connectionString = $"Server={server};Database={database};User Id={username};Password={password};";
+            //string conn = @"Server=NU-VGULAGANNAVA\SQLEXPRESS,32000;Database=AdventureWorksDW2019;User Id=testUser;Password=Vinod!YTAasK61#44;";
+            using (SqlConnection sqlConnection = new SqlConnection(connectionString))
             {
                 try
                 {
                     sqlConnection.Open();
                     return true;
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
+                    string exceptionDetail = ex.Message;
                     return false;
                 }
             }
