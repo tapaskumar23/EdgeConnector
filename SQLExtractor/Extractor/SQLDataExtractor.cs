@@ -6,6 +6,7 @@ using Microsoft.Health.SQL.Extractor.Endpoints.LocalStorage;
 using Microsoft.Health.SQL.Extractor.SQLData;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -47,9 +48,20 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
             _sQLConnectorConfiguration = configuration;
         }
 
-        public Task ExtractData(CancellationToken cancellationToken)
+        public async Task<DataTable> ExtractData(CancellationToken cancellationToken)
         {
-            throw new NotImplementedException();
+            if(VerifySQLConnection(cancellationToken).Result)
+            {
+                var connectionObj = _sqlConnectorFactory.Create(_sQLConnectorConfiguration.Value.Server,
+                _sQLConnectorConfiguration.Value.Database,
+                _sQLConnectorConfiguration.Value.Username,
+                _sQLConnectorConfiguration.Value.Password);
+
+                string sqlQuery = File.ReadAllText("initaltablelist.txt");
+
+                return await Task.FromResult(_sqlConnectorFactory.Execute(connectionObj, sqlQuery));
+            }
+            return await Task.FromResult<DataTable>(null);
         }
 
         public Task PerformInitalSetup(CancellationToken cancellationToken)

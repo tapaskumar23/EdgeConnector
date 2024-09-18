@@ -19,7 +19,7 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
 
         public DataTable Execute(SqlConnection connection, string query)
         {
-            throw new NotImplementedException();
+            return new DataTable();
         }
 
         public bool TestConnection(string server, string database, string username, string password)
@@ -29,9 +29,10 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
             ArgumentNullException.ThrowIfNullOrEmpty(username);
             ArgumentNullException.ThrowIfNullOrEmpty(password);
 
-            string connectionString = $"Server={server};Database={database};User Id={username};Password={password};";
-            //string conn = @"Server=NU-VGULAGANNAVA\SQLEXPRESS,32000;Database=AdventureWorksDW2019;User Id=testUser;Password=Vinod!YTAasK61#44;";
-            using (SqlConnection sqlConnection = new SqlConnection(connectionString))
+            //string conn = $"Server={server};Database={database};User Id={username};Password={password};";
+            //172.24.192.1
+            string conn = @"Server=192.168.1.3,1433;Database=AdventureWorksDW2019;User Id=testUser;Password=Vinod!YTAasK61#44;";
+            using (SqlConnection sqlConnection = new SqlConnection(conn))
             {
                 try
                 {
