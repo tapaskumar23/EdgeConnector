@@ -19,19 +19,36 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
 
         public DataTable Execute(SqlConnection connection, string query)
         {
-            throw new NotImplementedException();
+            DataTable dataTable = new DataTable();
+            try
+            {
+                connection.Open();
+                Console.WriteLine("Connection Opened Successfully");
+
+                using (SqlCommand command = new SqlCommand(query, connection))
+                {
+                    using (SqlDataAdapter adapter = new SqlDataAdapter(command))
+                    {
+                        adapter.Fill(dataTable);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"An error occurred: {ex.Message}");
+            }
+            finally
+            {
+                connection.Close();
+            }
+
+            return dataTable;
         }
 
-        public bool TestConnection(string server, string database, string username, string password)
-        {
-            ArgumentNullException.ThrowIfNullOrEmpty(server);
-            ArgumentNullException.ThrowIfNullOrEmpty(database);
-            ArgumentNullException.ThrowIfNullOrEmpty(username);
-            ArgumentNullException.ThrowIfNullOrEmpty(password);
-
-            string connectionString = $"Server={server};Database={database};User Id={username};Password={password};";
-            //string conn = @"Server=NU-VGULAGANNAVA\SQLEXPRESS,32000;Database=AdventureWorksDW2019;User Id=testUser;Password=Vinod!YTAasK61#44;";
-            using (SqlConnection sqlConnection = new SqlConnection(connectionString))
+        public bool TestConnection(string serverIP, string database, string username, string password)
+        {          
+            string conn = $"Server={serverIP},1433;Database={database};User Id={username};Password={password};";
+            using (SqlConnection sqlConnection = new SqlConnection(conn))
             {
                 try
                 {
