@@ -20,7 +20,7 @@ namespace Microsoft.Health.DICOM.Listener.Endpoints.LocalStorage
             _timeProvider = EnsureArg.IsNotNull(timeProvider, nameof(timeProvider));
         }
 
-        public LocalStorageDICOMFileContext Create(DicomMessage message)
+        public LocalStorageDICOMFileContext Create(byte[] file)
         {
             return new LocalStorageDICOMFileContext(_timeProvider.GetUtcNow());
         }

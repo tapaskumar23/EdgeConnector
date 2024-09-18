@@ -4,7 +4,6 @@
 // </copyright>
 // --------------------------------------------------------------------------
 
-
 using FellowOakDicom.Network;
 
 namespace Microsoft.Health.DICOM.Listener.Files
@@ -14,6 +13,6 @@ namespace Microsoft.Health.DICOM.Listener.Files
         <TDICOMFileContext>
         where TDICOMFileContext : DICOMFileContext
     {
-        TDICOMFileContext Create(DicomMessage message);
+        TDICOMFileContext Create(byte[] file);
     }
 }
