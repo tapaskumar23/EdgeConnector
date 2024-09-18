@@ -17,19 +17,19 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
             return new SqlConnection($"Server={server};Database={database};User Id={username};Password={password};");
         }
 
-        public DataTable Execute(SqlConnection connection, string query)
+        public async Task<DataTable> ExecuteAsync(SqlConnection connection, string query)
         {
             DataTable dataTable = new DataTable();
             try
             {
-                connection.Open();
+                await connection.OpenAsync();
                 Console.WriteLine("Connection Opened Successfully");
 
                 using (SqlCommand command = new SqlCommand(query, connection))
                 {
                     using (SqlDataAdapter adapter = new SqlDataAdapter(command))
                     {
-                        adapter.Fill(dataTable);
+                        await Task.Run(() => adapter.Fill(dataTable));
                     }
                 }
             }
@@ -39,7 +39,7 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
             }
             finally
             {
-                connection.Close();
+                await connection.CloseAsync();
             }
 
             return dataTable;

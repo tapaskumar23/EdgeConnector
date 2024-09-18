@@ -14,4 +14,4 @@ WHERE
     t.TABLE_TYPE = 'BASE TABLE'
 )
 SELECT 'SELECT ' + ColumnNames + ' FROM [' + SchemaName + '].[' + tableName + ']' AS SelectStmt,
-schemaName, tableName FROM columnList
+SchemaName, TableName FROM columnList

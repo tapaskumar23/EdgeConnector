@@ -40,7 +40,7 @@ namespace Microsoft.Health.SQL.Extractor.Extensions
 
             if (sqlExtractorConfiguration.IsValid())
             {
-                if (string.IsNullOrEmpty(sqlExtractorConfiguration.Server) || string.IsNullOrEmpty(sqlExtractorConfiguration.Database)
+                if (string.IsNullOrEmpty(sqlExtractorConfiguration.ServerIp) || string.IsNullOrEmpty(sqlExtractorConfiguration.Database)
                     || string.IsNullOrEmpty(sqlExtractorConfiguration.Username) || string.IsNullOrEmpty(sqlExtractorConfiguration.Password))
                 {
                     isConfigurationValid = false;

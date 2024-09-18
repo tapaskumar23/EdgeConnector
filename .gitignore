@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/SQLExtractor/Files/Sql/Local/AdventureWorksDW2019
+/SQLExtractor/appsettings.Development.json
+/SQLExtractor/SQLScripts/tableconfig.csv

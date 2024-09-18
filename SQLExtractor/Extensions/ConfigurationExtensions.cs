@@ -17,7 +17,7 @@ namespace Microsoft.Health.SQL.Extractor.Extensions
             }
 
             return !string.IsNullOrEmpty(configuration.Username) &&
-                !string.IsNullOrEmpty(configuration.Server) &&
+                !string.IsNullOrEmpty(configuration.ServerIp) &&
                 !string.IsNullOrEmpty(configuration.Database) &&
                 !string.IsNullOrEmpty(configuration.Password);
         }

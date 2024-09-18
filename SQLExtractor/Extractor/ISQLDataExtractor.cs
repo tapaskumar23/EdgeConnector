@@ -12,7 +12,7 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
         where TSQLDataContext : SQLDataContext
     {
         event Func<TSQLDataContext, Task> OnDataExtracted;
-        Task<DataTable> ExtractData(CancellationToken cancellationToken);
+        Task ExtractData(CancellationToken cancellationToken);
 
         Task<bool>  VerifySQLConnection(CancellationToken cancellationToken);
 
