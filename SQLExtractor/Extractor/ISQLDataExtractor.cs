@@ -18,9 +18,7 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
 
         Task PerformInitalSetup(CancellationToken cancellationToken);
 
-        void DataTableToCSV(DataTable dataTable, string filePath);
 
-        string EscapeCSV(string value);
 
     }
 }

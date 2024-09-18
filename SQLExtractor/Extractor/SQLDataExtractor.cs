@@ -27,12 +27,12 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
         {
             add
             {
-               
+
             }
 
             remove
             {
-               
+
             }
         }
 
@@ -53,23 +53,28 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
             throw new NotImplementedException();
         }
 
-        public Task PerformInitalSetup(CancellationToken cancellationToken)
+        public async Task PerformInitalSetup(CancellationToken cancellationToken)
         {
             if (VerifySQLConnection(cancellationToken).Result)
             {
-                var connectionObj = _sqlConnectorFactory.Create(_sQLConnectorConfiguration.Value.Server,
-                _sQLConnectorConfiguration.Value.Database,
-                _sQLConnectorConfiguration.Value.Username,
-                _sQLConnectorConfiguration.Value.Password);
 
-                string path = Directory.GetCurrentDirectory() + @"SQLScripts/initaltablelist.txt";
+                var sqlConfigPath = Directory.GetCurrentDirectory() + @"/SQLScripts/";
 
-                string sqlQuery = File.ReadAllText(path);
+                if (!File.Exists(sqlConfigPath + "tableconfig.csv"))
+                {
+                    var connectionObj = _sqlConnectorFactory.Create(_sQLConnectorConfiguration.Value.Server,
+              _sQLConnectorConfiguration.Value.Database,
+              _sQLConnectorConfiguration.Value.Username,
+              _sQLConnectorConfiguration.Value.Password);
 
-                var dataTable = _sqlConnectorFactory.Execute(connectionObj, sqlQuery);
-                
+                    string path = Directory.GetCurrentDirectory() + @"/SQLScripts/initaltablelist.txt";
+
+                    string sqlQuery = File.ReadAllText(path);
+
+                    var dataTable = _sqlConnectorFactory.Execute(connectionObj, sqlQuery);
+                    await DataTableToCSV(dataTable, sqlConfigPath + "tableconfig.csv");
+                }
             }
-            return Task.CompletedTask;
         }
 
         public async Task<bool> VerifySQLConnection(CancellationToken cancellationToken)
@@ -80,7 +85,7 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
                 _sQLConnectorConfiguration.Value.Password));
         }
 
-        public void DataTableToCSV(DataTable dataTable, string filePath)
+        private async Task DataTableToCSV(DataTable dataTable, string filePath)
         {
             StringBuilder csvContent = new StringBuilder();
 
@@ -106,10 +111,10 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
             }
 
             // Write to file
-            File.WriteAllText(filePath, csvContent.ToString());
+            await File.WriteAllTextAsync(filePath, csvContent.ToString());
         }
 
-        public string EscapeCSV(string value)
+        private string EscapeCSV(string value)
         {
             // Escape quotes and wrap with double quotes if needed
             if (value.Contains("\""))
