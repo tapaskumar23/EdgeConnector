@@ -46,6 +46,12 @@ namespace Microsoft.Health.DICOM.Listener.Endpoints.LocalStorage
                 // Creating a file path based on the extracted modality and using .dcm extension
                 string fileName = context.EnqueueDateTimeOffset.ToString("yyyy-MM-ddTHH-mm-ss-ffffff", CultureInfo.InvariantCulture) + ".dcm";
                
+                string mdPath = Path.Combine(_folderstructure, modality);
+                if(!Directory.Exists(mdPath))
+                {
+                    Directory.CreateDirectory(mdPath);
+                }
+
                 string filePath = Path.Combine(_folderstructure, modality, fileName);
 
                 // Writing the file to the designated path
@@ -62,29 +68,6 @@ namespace Microsoft.Health.DICOM.Listener.Endpoints.LocalStorage
             }
         }
 
-        //public Task<(string code, string error)?> Send(LocalStorageDICOMFileContext context, Byte[] file, CancellationToken cancellationToken)
-        //{
-        //    try
-        //    {
-        //        // Creating a file path with .dcm extension
-        //        string fileName = context.EnqueueDateTimeOffset.ToString("yyyy-MM-ddTHH-mm-ss-ffffff", CultureInfo.InvariantCulture) + ".dcm";
-        //        string filePath = Path.Combine(_path, fileName);
-
-        //        // Creating a FileStream and StreamWriter to write the file
-        //        using var fileStream = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write);
-
-        //        // Write the byte array directly to the file stream (no need for StreamWriter with binary files)
-        //        fileStream.Write(file, 0, file.Length);
-
-        //        _logger.LogInformation("DICOM file written to local storage successfully: {FilePath}", filePath);
-        //        return Task.FromResult<(string, string)?>(null);
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Failed to write DICOM file to local storage.");
-        //        return Task.FromResult<(string, string)?>((ex.GetType().Name, ex.Message));
-        //    }
-        //}
 
     }
 }

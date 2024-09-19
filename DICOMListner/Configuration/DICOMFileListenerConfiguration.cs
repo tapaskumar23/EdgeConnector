@@ -9,6 +9,6 @@ namespace Microsoft.Health.DICOM.Listener.Configuration
     public class DICOMFileListenerConfiguration
     {
         public int Port { get; set; }
-        public string FolderStructure { get; set; }
+        public string? FolderStructure { get; set; }
     }
 }
