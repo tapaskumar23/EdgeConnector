@@ -11,5 +11,6 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
         public string SelectStmt { get; set; }
         public string SchemaName { get; set; }
         public string TableName { get; set; }
+        public string PotentialLoadType { get; set; }
     }
 }

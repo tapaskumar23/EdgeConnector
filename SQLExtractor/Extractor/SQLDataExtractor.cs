@@ -58,7 +58,7 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
         public async Task ExtractData(CancellationToken cancellationToken)
         {
             //Read the CSV file load into list of tableconfig
-            var listOfSqlTableConfig = LoadSQLConfig(sqlConfigPath + "tableconfig.csv");
+            var listOfSqlTableConfig = LoadSQLConfig("tableconfig.csv");
             if (listOfSqlTableConfig.Result.Count > 0)
             {
                 await ProcessSqlTableConfigRecords(listOfSqlTableConfig.Result, cancellationToken);
@@ -68,7 +68,7 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
 
         public async Task PerformInitalSetup(CancellationToken cancellationToken)
         {
-            if (!File.Exists(sqlConfigPath + "tableconfig.csv"))
+            if (!File.Exists("tableconfig.csv"))
             {
                 var connectionObj = _sqlConnectorFactory.Create(_sQLConnectorConfiguration.Value.ServerIp,
                 _sQLConnectorConfiguration.Value.Database,
@@ -80,7 +80,7 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
                 string sqlQuery = File.ReadAllText(path);
 
                 var dataTable = await _sqlConnectorFactory.ExecuteAsync(connectionObj, sqlQuery);
-                await DataTableToCSV(dataTable, sqlConfigPath + "tableconfig.csv");
+                await DataTableToCSV(dataTable, "tableconfig.csv");
             }
         }
 
@@ -148,40 +148,29 @@ namespace Microsoft.Health.SQL.Extractor.Extractor
         {
             var tasks = lstSqlTableConfig.Select(async record =>
             {
-                try
+                string query = record.SelectStmt;
+                if (record.PotentialLoadType != "FULL LOAD")
                 {
-                    string sqlText = record.SelectStmt;
-                    if (!string.IsNullOrEmpty(sqlText))
-                    {
-                        var connectionObj = _sqlConnectorFactory.Create(_sQLConnectorConfiguration.Value.ServerIp,
-                                            _sQLConnectorConfiguration.Value.Database,
-                                            _sQLConnectorConfiguration.Value.Username,
-                                            _sQLConnectorConfiguration.Value.Password);
-                        var dataTable = await _sqlConnectorFactory.ExecuteAsync(connectionObj, sqlText);
-                        dataTable.TableName = record.TableName;
+                    //Build the Incremental Load Logic
+                }
+                var connectionObj = _sqlConnectorFactory.Create(_sQLConnectorConfiguration.Value.ServerIp,
+                                    _sQLConnectorConfiguration.Value.Database,
+                                    _sQLConnectorConfiguration.Value.Username,
+                                    _sQLConnectorConfiguration.Value.Password);
+                var dataTable = await _sqlConnectorFactory.ExecuteAsync(connectionObj, query);
+                dataTable.TableName = record.TableName;
 
-                        if (_externalEndpoint != null)
-                        {
-                            await _externalEndpoint.SendAsync(_sqlDataContextFactory.Create(DateTimeOffset.UtcNow), dataTable, cancellationToken);
-                        }
-                    }
-                }
-                catch (Exception ex)
+                if (_externalEndpoint != null)
                 {
-                    _logger.LogError(ex, $"Failed to process record: {record}");
-                    // Optionally, you can rethrow the exception or handle it as needed
+                    await _externalEndpoint.SendAsync(_sqlDataContextFactory.Create(DateTimeOffset.UtcNow), dataTable, cancellationToken);
                 }
+
+
             });
 
-            try
-            {
-                await Task.WhenAll(tasks);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "One or more tasks failed.");
-                // Handle the aggregate exception if needed
-            }
+
+            await Task.WhenAll(tasks);
+
         }
     }
 }
