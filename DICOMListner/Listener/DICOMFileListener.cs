@@ -103,5 +103,10 @@ namespace Microsoft.Health.DICOM.Listener.Listener
                 throw;
             }
         }
+
+        private async Task InitailSetup()
+        {
+            
+        }
     }
 }

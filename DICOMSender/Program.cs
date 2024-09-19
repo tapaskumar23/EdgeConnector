@@ -18,7 +18,7 @@ namespace DicomSender
             //    return;
             //}
 
-            string dicomFilePath = "C:/Users/asomwanshi/OneDrive - Microsoft/Hack2024/SecureHealthBridge/DICOM_Data/sampleData.dcm";
+            string dicomFilePath = "C:/Users/asomwanshi/OneDrive - Microsoft/Hack2024/SecureHealthBridge/DICOM_Data/sampleDataCR.dcm";
 
             if (!File.Exists(dicomFilePath))
             {
