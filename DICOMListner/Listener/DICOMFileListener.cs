@@ -41,7 +41,7 @@ namespace Microsoft.Health.DICOM.Listener.Listener
 
         public async Task StartAsync(CancellationToken cancellationToken)
         {
-            // throw new NotImplementedException();
+          await  InitailSetup();
 
             TcpListener server = _tcpListenerFactory.Create(_configuration.Port);
             server.Start();
@@ -106,7 +106,10 @@ namespace Microsoft.Health.DICOM.Listener.Listener
 
         private async Task InitailSetup()
         {
-            
+            if (!Directory.Exists(_configuration.FolderStructure))
+            {
+                Directory.CreateDirectory(_configuration.FolderStructure);
+            }
         }
     }
 }

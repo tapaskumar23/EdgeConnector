@@ -16,12 +16,15 @@ namespace Microsoft.Health.DICOM.Listener.Endpoints.LocalStorage
     {
         private readonly string _path;
         private readonly ILogger<LocalStorageEndpoint> _logger;
+        private readonly string? _folderstructure;
 
         public LocalStorageEndpoint(
             IOptions<LocalStorageEndpointConfiguration> configuration,
+            IOptions<DICOMFileListenerConfiguration> fileListenerConfiguration,
             ILogger<LocalStorageEndpoint> logger)
         {
             _path = EnsureArg.IsNotNullOrWhiteSpace(configuration?.Value?.Path, nameof(configuration.Value.Path));
+            _folderstructure = EnsureArg.IsNotNullOrWhiteSpace(fileListenerConfiguration?.Value.FolderStructure, nameof(fileListenerConfiguration.Value.FolderStructure));
             _logger = EnsureArg.IsNotNull(logger, nameof(logger));
         }
 
@@ -42,10 +45,8 @@ namespace Microsoft.Health.DICOM.Listener.Endpoints.LocalStorage
 
                 // Creating a file path based on the extracted modality and using .dcm extension
                 string fileName = context.EnqueueDateTimeOffset.ToString("yyyy-MM-ddTHH-mm-ss-ffffff", CultureInfo.InvariantCulture) + ".dcm";
-                string modalityFolder = Path.Combine("Bronz", "DICOM", modality);
-                Directory.CreateDirectory(modalityFolder); // Ensure the folder exists
-
-                string filePath = Path.Combine(modalityFolder, fileName);
+               
+                string filePath = Path.Combine(_folderstructure, modality, fileName);
 
                 // Writing the file to the designated path
                 using var fileStream = new FileStream(filePath, FileMode.CreateNew, FileAccess.Write);
