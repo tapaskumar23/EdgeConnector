@@ -22,7 +22,6 @@ namespace Microsoft.Health.SQL.Extractor
         private readonly IExternalEndpoint<TSQLDataContext> _externalEndpoint;
         private readonly ILogger<Worker<TSQLDataContext>> _logger;
         private readonly IOptions<SQLConnectorConfiguration> _sQLConnectorConfiguration;
-
         public Worker(
                         ISQLDataExtractor<TSQLDataContext> sqlDataExtractor,
                         IExternalEndpoint<TSQLDataContext> externalEndpoint,
@@ -44,14 +43,23 @@ namespace Microsoft.Health.SQL.Extractor
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await _externalEndpoint.PerformInitialSetupAsync(_sQLConnectorConfiguration.Value.ServerName, _sQLConnectorConfiguration.Value.Database);
-            //Verify the Connection
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                var utcNow = DateTime.UtcNow;
 
-            await _sqlDataExtractor.VerifySQLConnection(stoppingToken).ConfigureAwait(false);
-            await _sqlDataExtractor.PerformInitalSetup(stoppingToken).ConfigureAwait(false);
+                await Task.Delay(_sQLConnectorConfiguration.Value.InternalInMins * 1000, stoppingToken);
 
-            //Perform the initial Setup
-            await _sqlDataExtractor.ExtractData(stoppingToken).ConfigureAwait(false);
+                await _externalEndpoint.PerformInitialSetupAsync(_sQLConnectorConfiguration.Value.ServerName, _sQLConnectorConfiguration.Value.Database);
+                //Verify the Connection
+
+                await _sqlDataExtractor.VerifySQLConnection(stoppingToken).ConfigureAwait(false);
+                await _sqlDataExtractor.PerformInitalSetup(stoppingToken).ConfigureAwait(false);
+
+                //Perform the initial Setup
+                await _sqlDataExtractor.ExtractData(stoppingToken).ConfigureAwait(false);
+            }
+
+
         }
 
         public override void Dispose()
