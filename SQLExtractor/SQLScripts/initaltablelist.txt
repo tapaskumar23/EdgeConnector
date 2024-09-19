@@ -1,17 +1,137 @@
-﻿;With columnList AS 
+﻿declare @rowCountThreshold INT = 10000,
+		@changeTrackingColumn VARCHAR(1000) = 'LastModifiedDate, UpdatedDate, ModifiedDate, UpdatedOn, ModifiedOn, UpdatedAt, ModifiedAt'
+
+;WITH PotentialTableLoadIdentifier AS 
+(
+    SELECT 
+        tab.TABLE_SCHEMA AS SchemaName,
+        tab.TABLE_NAME AS TableName,
+		CASE 
+            WHEN EXISTS (SELECT 1 
+                         FROM INFORMATION_SCHEMA.TABLES t
+                         WHERE t.TABLE_NAME = tab.TABLE_NAME 
+                         AND (t.TABLE_NAME like '%Transaction%' OR t.TABLE_NAME like '%Log%' OR t.TABLE_NAME like '%History%' OR t.TABLE_NAME like '%archive%')
+						 )
+            THEN 1 ELSE 0 
+        END AS IsProbablyTransactionOrLogOrArchiveTable,
+        CASE 
+            WHEN EXISTS (SELECT 1 
+                         FROM INFORMATION_SCHEMA.COLUMNS c 
+                         WHERE c.TABLE_SCHEMA = tab.TABLE_SCHEMA 
+                         AND c.TABLE_NAME = tab.TABLE_NAME 
+                         AND c.COLUMN_NAME IN (select value from string_split(@changeTrackingColumn,','))) 
+            THEN 1 ELSE 0 
+        END AS HasChangeTrackingColumn,
+        CASE 
+            WHEN EXISTS (SELECT 1 
+                         FROM INFORMATION_SCHEMA.TABLE_CONSTRAINTS tc 
+                         JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE ku 
+                         ON tc.CONSTRAINT_NAME = ku.CONSTRAINT_NAME 
+                         WHERE tc.TABLE_SCHEMA = tab.TABLE_SCHEMA 
+                         AND tc.TABLE_NAME = tab.TABLE_NAME 
+                         AND tc.CONSTRAINT_TYPE = 'PRIMARY KEY') 
+            THEN 1 ELSE 0 
+        END AS HasPrimaryKey,
+        CASE 
+            WHEN EXISTS (SELECT 1 
+                         FROM sys.columns col 
+                         JOIN sys.tables tbl 
+                         ON col.object_id = tbl.object_id 
+                         JOIN sys.schemas sch 
+                         ON tbl.schema_id = sch.schema_id 
+                         WHERE sch.name = tab.TABLE_SCHEMA 
+                         AND tbl.name = tab.TABLE_NAME 
+                         AND col.is_identity = 1) 
+            THEN 1 ELSE 0 
+        END AS HasIdentityColumn,
+        (
+		SELECT SUM(p.rows) 
+         FROM sys.partitions p 
+         WHERE p.object_id = OBJECT_ID(tab.TABLE_SCHEMA + '.' + tab.TABLE_NAME) 
+         AND p.index_id IN (0, 1)
+		 ) AS [RowCount]
+    FROM 
+        INFORMATION_SCHEMA.TABLES tab
+    WHERE 
+        tab.TABLE_TYPE = 'BASE TABLE'
+),
+columnList AS 
+(
+	SELECT 
+		t.TABLE_SCHEMA AS SchemaName, 
+		t.TABLE_NAME AS TableName, 
+		STUFF((SELECT ', [' + c.COLUMN_NAME + ']'
+			   FROM INFORMATION_SCHEMA.COLUMNS c
+			   WHERE c.TABLE_NAME = t.TABLE_NAME 
+			   AND c.TABLE_SCHEMA = t.TABLE_SCHEMA
+			   FOR XML PATH('')), 1, 2, '') AS ColumnNames
+	FROM 
+		INFORMATION_SCHEMA.TABLES t
+	WHERE 
+		t.TABLE_TYPE = 'BASE TABLE'
+),
+IdentityColumn AS 
+(
+	SELECT tbl.name AS tableName, schema_name(tbl.schema_id) AS schemaName, col.name AS IdentityColumnName
+	FROM sys.columns col 
+	INNER JOIN sys.tables tbl  ON col.object_id = tbl.object_id 
+	INNER JOIN sys.schemas sch ON tbl.schema_id = sch.schema_id
+	WHERE col.is_identity = 1
+),
+ChangeTrackingColumn AS
+(
+	SELECT tbl.name AS tableName, schema_name(tbl.schema_id) AS schemaName, col.name AS ChangetrackingColumn
+	FROM sys.columns col 
+	INNER JOIN sys.tables tbl  ON col.object_id = tbl.object_id 
+	INNER JOIN sys.schemas sch ON tbl.schema_id = sch.schema_id
+	WHERE col.name in (select value from string_split(@changeTrackingColumn,','))
+),
+resultSet AS
 (
 SELECT 
-    t.TABLE_SCHEMA AS SchemaName, 
-    t.TABLE_NAME AS TableName, 
-    STUFF((SELECT ', [' + c.COLUMN_NAME + ']'
-           FROM INFORMATION_SCHEMA.COLUMNS c
-           WHERE c.TABLE_NAME = t.TABLE_NAME 
-           AND c.TABLE_SCHEMA = t.TABLE_SCHEMA
-           FOR XML PATH('')), 1, 2, '') AS ColumnNames
+    pti.SchemaName,
+    pti.TableName,
+	IsProbablyTransactionOrLogOrArchiveTable,
+	[RowCount],
+	HasChangeTrackingColumn,
+	HasPrimaryKey,
+	HasIdentityColumn,
+    CASE        
+        -- Case 1: Full Load rows <= @rowCountThreshold
+        WHEN [RowCount] <= @rowCountThreshold THEN 'FULL LOAD'
+		-- Case 2: Full Load rows <= @rowCountThreshold and change tracking column
+        WHEN HasChangeTrackingColumn = 0 AND [RowCount] <= @rowCountThreshold THEN 'FULL LOAD'
+		-- Case 3: Incremental Load with change tracking column and crossing records threshold
+        WHEN HasChangeTrackingColumn = 1 AND [RowCount] > @rowCountThreshold THEN 'INCREMENTAL LOAD'
+		-- Case 4: Incremental Load with identity column and crossing records threshold
+        WHEN HasIdentityColumn = 1 AND [RowCount] > @rowCountThreshold THEN 'INCREMENTAL LOAD'
+		-- Case 5: table with log or transaction word in name likely to store same data
+        WHEN IsProbablyTransactionOrLogOrArchiveTable = 1 AND (HasChangeTrackingColumn = 1 OR HasIdentityColumn = 1) AND [RowCount] > @rowCountThreshold  THEN 'INCREMENTAL LOAD'
+		-- Case 6: Incremental Load with primary key and crossing records threshold
+        WHEN HasPrimaryKey = 1 and [RowCount] > @rowCountThreshold THEN 'INCREMENTAL LOAD'
+        -- Default Full Load
+        ELSE 'FULL LOAD'
+    END AS PotentialLoadType,
+	'SELECT ' + ColumnNames + ' FROM [' + cl.SchemaName + '].[' + cl.tableName + ']' AS SelectStmt,
+	COALESCE(ctc.ChangetrackingColumn, ic.IdentityColumnName) AS columnForIncrLoad
+	
 FROM 
-    INFORMATION_SCHEMA.TABLES t
-WHERE 
-    t.TABLE_TYPE = 'BASE TABLE'
+    PotentialTableLoadIdentifier pti
+	INNER JOIN columnList cl ON pti.TableName = cl.TableName and pti.SchemaName = cl.SchemaName
+	LEFT OUTER JOIN IdentityColumn ic ON ic.schemaName = pti.SchemaName AND ic.tableName = pti.TableName
+	LEFT OUTER JOIN ChangeTrackingColumn ctc ON ctc.schemaName = pti.SchemaName AND ctc.tableName = pti.TableName
 )
-SELECT 'SELECT ' + ColumnNames + ' FROM [' + SchemaName + '].[' + tableName + ']' AS SelectStmt,
-SchemaName, TableName FROM columnList
+SELECT 
+	rs.SchemaName
+	,rs.TableName
+	,rs.IsProbablyTransactionOrLogOrArchiveTable
+	,rs.[RowCount]
+	,rs.HasChangeTrackingColumn
+	,rs.HasPrimaryKey
+	,rs.HasIdentityColumn
+	,rs.PotentialLoadType
+	,rs.SelectStmt
+	,rs.columnForIncrLoad
+	,col.DATA_TYPE
+FROM resultSet rs
+INNER JOIN INFORMATION_SCHEMA.COLUMNS col ON col.COLUMN_NAME = rs.columnForIncrLoad AND col.TABLE_NAME = rs.TableName
